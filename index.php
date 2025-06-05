@@ -31,15 +31,49 @@ function handleUpload($target_dir) {
       return;
     }
 
-    $target_file = $upload_dir . '/' . basename($file['name']);
+    // Bonus: Amankan nama file
+    $originalName = basename($file['name']);
+    $safeName = preg_replace('/[^a-zA-Z0-9_\.\-]/', '_', $originalName);
+    
+    // Hindari overwrite: Tambahkan timestamp jika nama sudah ada
+    $target_file = $upload_dir . '/' . $safeName;
+    if (file_exists($target_file)) {
+      $ext = pathinfo($safeName, PATHINFO_EXTENSION);
+      $name = pathinfo($safeName, PATHINFO_FILENAME);
+      $safeName = $name . '_' . time() . '.' . $ext;
+      $target_file = $upload_dir . '/' . $safeName;
+    }
 
     if (move_uploaded_file($file['tmp_name'], $target_file)) {
-      echo "<p style='color:green;'>File berhasil diunggah.</p>";
+      echo "<p style='color:green;'>File <strong>$safeName</strong> berhasil diunggah.</p>";
     } else {
-      echo "<p style='color:red;'>Gagal mengunggah file ke $target_file.</p>";
+      echo "<p style='color:red;'>Gagal mengunggah file ke <code>$target_file</code>.</p>";
     }
   }
 }
+
+
+
+//function handleUpload($target_dir) {
+  //if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
+    //$file = $_FILES['file'];
+
+    // Pastikan target_dir ada dan dapat ditulis
+    //$upload_dir = realpath($target_dir);
+    //if (!$upload_dir || !is_writable($upload_dir)) {
+      //echo "<p style='color:red;'>Direktori tujuan tidak tersedia atau tidak bisa ditulis.</p>";
+      //return;
+    //}
+
+    //$target_file = $upload_dir . '/' . basename($file['name']);
+
+    //if (move_uploaded_file($file['tmp_name'], $target_file)) {
+      //echo "<p style='color:green;'>File berhasil diunggah.</p>";
+    //} else {
+      //echo "<p style='color:red;'>Gagal mengunggah file ke $target_file.</p>";
+    //}
+  //}
+//}
 
 
 ?>
